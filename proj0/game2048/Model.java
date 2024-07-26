@@ -5,7 +5,7 @@ import java.util.Observable;
 
 
 /** The state of a game of 2048.
- *  @author TODO: YOUR NAME HERE
+ *  @author TODO: Ying Wang
  */
 public class Model extends Observable {
     /** Current contents of the board. */
@@ -113,12 +113,38 @@ public class Model extends Observable {
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
-
+        board.setViewingPerspective(side);
+        for (int col=0; col<board.size(); col+=1){
+            dealCol(col);
+        }
+        board.setViewingPerspective(side.NORTH);
+        changed=true;
         checkGameOver();
         if (changed) {
             setChanged();
         }
         return changed;
+    }
+    public void dealCol(int c){
+        for(int r=board.size()-1; r>0; r-=1){
+            for(int n=r-1; n>=0; n-=1){
+                if(board.tile(c,r) == null){
+                    if (board.tile(c, n) != null) {
+                        board.move(c, r, board.tile(c, n));
+                    }
+                }
+                else{
+                    if(board.tile(c,n)==null){
+                        continue;
+                    }
+                    if(board.tile(c,r).value()== board.tile(c,n).value()){
+                        board.move(c,r,board.tile(c,n));
+                        score+=board.tile(c,r).value();
+                    }
+                    break;
+                }
+            }
+        }
     }
 
     /** Checks if the game is over and sets the gameOver variable
@@ -138,6 +164,13 @@ public class Model extends Observable {
      * */
     public static boolean emptySpaceExists(Board b) {
         // TODO: Fill in this function.
+        for (int col = 0; col < b.size(); col +=1){
+            for(int row = 0; row < b.size(); row +=1){
+                if(b.tile(col, row) == null){
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -148,6 +181,16 @@ public class Model extends Observable {
      */
     public static boolean maxTileExists(Board b) {
         // TODO: Fill in this function.
+        for(int col=0; col < b.size(); col +=1){
+            for(int row=0; row <b.size(); row +=1){
+                if(b.tile(col, row)==null){
+                    continue;
+                }
+                if(b.tile(col, row).value()==MAX_PIECE){
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -159,9 +202,57 @@ public class Model extends Observable {
      */
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
-        return false;
-    }
+        if (emptySpaceExists(b)){
+            return true;
+        }
+        for(int col=0; col<b.size(); col+=1){
+            for(int row=0; row <b.size(); row+=1){
+                if(col>0 && b.tile(col, row).value() == b.tile(col-1, row).value()){
+                    return true;
+                }
+                if(col<b.size()-1 && b.tile(col, row).value() == b.tile(col+1, row).value()){
+                    return true;
+                }
+                if(row>0 && b.tile(col, row).value() == b.tile(col, row-1).value()){
+                    return true;
+                }
+                if(row<b.size()-1 && b.tile(col, row).value()==b.tile(col, row+1).value()){
+                    return true;
+                }
+            }
+        }
+            return false;
+        }
 
+        /*for (int col=0; col<b.size(); col+=1){
+            for(int row=0; row<b.size(); row+=1){
+                if(isEaqual(b, col,row, col+1, row) ){
+                    return true;
+                }
+                if(isEaqual(b, col, row, col-1, row) ){
+                    return true;
+                }
+                if(isEaqual(b, col, row, col, row+1)){
+                    return true;
+                }
+                if(isEaqual(b, col, row, col, row-1)){
+                    return true;
+                }
+            }
+        }
+    return false;
+    }
+    public static Boolean isEaqual(Board b, int col1, int row1, int col2, int row2){
+        if(col2<0 || col2>=b.size() || row2<0 || row2>=b.size()){
+            return false;
+        }
+        if(b.tile(col1, row1).value()!=b.tile(col2, row2).value()){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }*/
 
     @Override
      /** Returns the model as a string, used for debugging. */
